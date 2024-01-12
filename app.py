@@ -13,10 +13,10 @@ def koneksi_database():
     conn = None
     try:
         conn = pymysql.connect(
-            host="127.0.0.1",
-            database="daftar_lagu_galau",
-            user="root",
-            # password="",
+            host="sql.freedb.tech",
+            database="freedb_daftar_lagu_galau",
+            user="freedb_rizqi",
+            password="5AxVm4F76&Fv$KY",
             port=3306,
             cursorclass=pymysql.cursors.DictCursor,
         )
