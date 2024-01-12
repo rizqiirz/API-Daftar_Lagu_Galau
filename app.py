@@ -3,22 +3,20 @@ import pymysql
 
 app = Flask(__name__)
 
-"""
-Nama : Muhammad Faza Abiyyu
-NIM : 2211102010
-Kelas : S1-IF-10-K
-"""
+
+# Muhammad Rizqi
+# 2211102016
+# IF10K
 
 
-# Menggunakan Database Freedb.tech
-def db_connection():
+def koneksi_database():
     conn = None
     try:
         conn = pymysql.connect(
-            host="sql.freedb.tech",
-            database="freedb_Chiabiyyu_DB",
-            user="freedb_chi_abiyyu",
-            password="6Am9uVaF6%r8X?*",
+            host="127.0.0.1",
+            database="daftar_lagu_galau",
+            user="root",
+            # password="",
             port=3306,
             cursorclass=pymysql.cursors.DictCursor,
         )
@@ -27,99 +25,66 @@ def db_connection():
     return conn
 
 
-@app.route("/buku", methods=["GET", "POST", "PUT", "DELETE"])
-def manage_buku():
-    conn = db_connection()
+@app.route("/lagu-galau", methods=["GET", "POST", "PUT", "DELETE"])
+def kelola_lagu_galau():
+    conn = koneksi_database()
     cursor = conn.cursor()
-    # GET untuk menampilkan data dari tabel
+
     if request.method == "GET":
-        cursor.execute("SELECT * FROM buku")
-        buku = [
-            dict(
-                idbuku=row["idbuku"],
-                nama_buku=row["nama_buku"],
-                penulis=row["penulis"],
-                rating=row["rating"],
-                halaman=row["halaman"],
-                tanggal_terbit=row["tanggal_terbit"],
-                penerbit=row["penerbit"],
-                stok=row["stok"],
-            )
+        cursor.execute("SELECT * FROM lagu_galau")
+        lagu_galau = [
+            dict(id=row["id"], judul=row["judul"], durasi=str(row["durasi"]), artis=row["artis"], album=row["album"], genre=row["genre"], tahun=row["tahun"])
             for row in cursor.fetchall()
         ]
-        if buku is not None:
-            return jsonify(buku)
-    # POST untuk menambahkan data dari tabel
+        if lagu_galau:
+            return jsonify(lagu_galau)
+        else:
+            return "Daftar Lagu Galau Masih Kosong!"
+
     if request.method == "POST":
-        add_nama_buku = request.form["nama_buku"]
-        add_penulis = request.form["penulis"]
-        add_rating = request.form["rating"]
-        add_halaman = request.form["halaman"]
-        add_tanggal_terbit = request.form["tanggal_terbit"]
-        add_penerbit = request.form["penerbit"]
-        add_stok = request.form["stok"]
+        tambah_judul = request.form["judul"]
+        tambah_durasi = request.form["durasi"]
+        tambah_artis = request.form["artis"]
+        tambah_album = request.form["album"]
+        tambah_genre = request.form["genre"]
+        tambah_tahun = request.form["tahun"]
 
-        query_insert = """
-            INSERT INTO buku (nama_buku, penulis, rating, halaman, tanggal_terbit, penerbit, stok)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-
-        cursor.execute(
-            query_insert,
-            (
-                add_nama_buku,
-                add_penulis,
-                add_rating,
-                add_halaman,
-                add_tanggal_terbit,
-                add_penerbit,
-                add_stok,
-            ),
+        query_insert = (
+            """INSERT INTO lagu_galau (judul, durasi, artis, album, genre, tahun) VALUES (%s, %s, %s, %s, %s, %s)"""
         )
+
+        cursor.execute(query_insert, (tambah_judul, tambah_durasi, tambah_artis, tambah_album, tambah_genre, tambah_tahun))
         conn.commit()
-        return "Berhasil Menambahkan Data Buku."
-    # PUT untuk memperbarui data dari tabel
+        return "Berhasil Menambahkan Lagu Galau!"
+
     if request.method == "PUT":
-        update_idbuku = request.form["idbuku"]
-        update_nama_buku = request.form["nama_buku"]
-        update_penulis = request.form["penulis"]
-        update_rating = request.form["rating"]
-        update_halaman = request.form["halaman"]
-        update_tanggal_terbit = request.form["tanggal_terbit"]
-        update_penerbit = request.form["penerbit"]
-        update_stok = request.form["stok"]
+        update_id = request.form["id"]
+        update_judul = request.form["judul"]
+        update_durasi = request.form["durasi"]
+        update_artis = request.form["artis"]
+        update_album = request.form["album"]
+        update_genre = request.form["genre"]
+        update_tahun = request.form["tahun"]
 
         query_update = """
-            UPDATE buku
-            SET nama_buku=%s, penulis=%s, rating=%s, halaman=%s, tanggal_terbit=%s, penerbit=%s, stok=%s
-            WHERE idbuku=%s
+            UPDATE lagu_galau
+            SET judul=%s, durasi=%s, artis=%s, album=%s, genre=%s, tahun=%s
+            WHERE id=%s
         """
 
-        cursor.execute(
-            query_update,
-            (
-                update_nama_buku,
-                update_penulis,
-                update_rating,
-                update_halaman,
-                update_tanggal_terbit,
-                update_penerbit,
-                update_stok,
-                update_idbuku,
-            ),
-        )
+        cursor.execute(query_update, (update_judul, update_durasi, update_artis, update_album, update_genre, update_tahun, update_id))
         conn.commit()
-        return "Berhasil Memperbarui Data Buku."
-    # DELETE untuk menghapus data dari tabel
+        return "Berhasil Memperbarui Informasi Lagu Galau!"
+
     if request.method == "DELETE":
-        delete_idbuku = request.form["idbuku"]
+        hapus_id = request.form["id"]
 
-        query_delete = """DELETE FROM buku WHERE idbuku=%s"""
+        query_delete = """DELETE FROM lagu_galau WHERE id=%s"""
 
-        cursor.execute(query_delete, (delete_idbuku,))
+        cursor.execute(query_delete, (hapus_id,))
         conn.commit()
-        return "Berhasil Menghapus Data Buku."
-        
+        return "Berhasil Menghapus Lagu Galau!"
+
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000, use_reloader=True)
+    app.run()
